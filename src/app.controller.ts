@@ -1,19 +1,22 @@
 import { Controller, Get } from '@nestjs/common';
-import { Administrator } from 'entieties/administrator.entity';
+import { User } from 'entieties/user.entity';
+import { UserService } from './service/user/user.service';
+import { userInfo } from 'os';
 import { AdministratorService } from './service/administrator/administrator.service';
 
 @Controller()
 export class AppController {
-  constructor (
-    private administratorService: AdministratorService
-  ) 
-  {}
+  constructor(
+    private administratorService: AdministratorService,
+    private userService: UserService
+  ){}
+
   @Get()
   getHello(): string {
     return 'Hello World!';
   }
-  @Get('app/admins/')
-  getAllAdmins(): Promise<Administrator[]> {
-    return this.administratorService.getAll();
+  @Get('allusers/')
+  getAllUsers(): Promise<User[]> {
+    return this.userService.getAll();
   }
 }

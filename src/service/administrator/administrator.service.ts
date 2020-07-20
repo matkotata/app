@@ -8,12 +8,11 @@ export class AdministratorService {
     constructor(
         @InjectRepository(Administrator)
         private readonly administrator: Repository<Administrator>
-    ) {}
-
+    ){}
     getAll(): Promise<Administrator[]> {
         return this.administrator.find();
     }
     getOne(id: number): Promise<Administrator> {
-        return this.administrator.findOne(id)
+        return this.administrator.findOne(id);
     }
 }
