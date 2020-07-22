@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { hostname } from 'os';
-import { databaseConfiguration } from 'config/database.configuration';
+import { databaseConfiguration } from '../config/database.configuration';
 import { AdministratorService } from './service/administrator/administrator.service';
 import { UserService } from './service/user/user.service';
-import { Administrator } from 'entieties/administrator.entity';
-import { User } from 'entieties/user.entity';
+import { Administrator } from '../entities/Administrator';
+import { User } from '../entities/User';
 
 @Module({
   imports: [
