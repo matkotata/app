@@ -3,6 +3,7 @@ import { Get, Param, Controller, Put, Body, Post } from "@nestjs/common";
 import { Administrator } from "entities/administrator.entity";
 import { AddAdministratorDto } from "src/dtos/administrator/add.administrator.dto";
 import { EditAdministratorDto } from "src/dtos/administrator/edit.administrator.dto";
+import { promises } from "dns";
 
 @Controller('api/administrator')
 export class AdministratorController {
@@ -25,7 +26,7 @@ export class AdministratorController {
     }
 
     @Post(':id')
-    editById(@Param('id') id: number, @Body() data: EditAdministratorDto): Promise<Administrator> {
+    editById(@Param('id') id:number,@Body() data: EditAdministratorDto): Promise<Administrator> {
         return this.administrator.editById(id,data);
     }
 }
