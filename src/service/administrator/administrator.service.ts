@@ -6,6 +6,9 @@ import { AddAdministratorDto } from 'src/dtos/administrator/add.administrator.dt
 import * as crypto from "crypto";
 import { EditAdministratorDto } from 'src/dtos/administrator/edit.administrator.dto';
 import { async } from 'rxjs';
+import { ApiResponse } from 'src/misc/api.response.class';
+import { resolve } from 'path';
+import { promises } from 'dns';
 
 @Injectable()
 export class AdministratorService {
@@ -18,11 +21,17 @@ export class AdministratorService {
         return this.administrator.find();
     }
 
-    getOne(id: number): Promise<Administrator> {
-        return this.administrator.findOne(id)
+    getOne(id: number): Promise<Administrator | ApiResponse> {
+        return new Promise(async (resolve) => {
+            let admin = await this.administrator.findOne(id);
+            if(admin === undefined) {
+                resolve(new ApiResponse("error", -1003));
+            }
+            resolve(admin);
+        });
     }
 
-    add(data: AddAdministratorDto): Promise<Administrator> {
+    add(data: AddAdministratorDto): Promise<Administrator | ApiResponse> {
         const passwordHash = crypto.createHash('sha512');
         passwordHash.update(data.password);
         const passwordHashString = passwordHash.digest('hex').toUpperCase();
@@ -31,17 +40,31 @@ export class AdministratorService {
         admin.username = data.username;
         admin.passwordHash = passwordHashString
 
-        return this.administrator.save(admin);
+        return new Promise((resolve) => {
+            this.administrator.save(admin)
+            .then((data) => {
+                resolve(data);
+            })
+            .catch((err) => {
+                const response: ApiResponse = new ApiResponse("error", -1001);
+                resolve(response);
+            })
+        });
     }
 
-    async editById(id: number, data: EditAdministratorDto): Promise<Administrator> {
+    async editById(id: number, data: EditAdministratorDto): Promise<Administrator | ApiResponse> {
+        let admin: Administrator = await this.administrator.findOne(id);
+
+        if(admin === undefined) {
+            return new Promise((resolve) => {
+                resolve(new ApiResponse("error",-1002));
+            });
+        }
         const passwordHash = crypto.createHash('sha512');
         passwordHash.update(data.password);
         const passwordHashString = passwordHash.digest('hex').toUpperCase();
 
-        let admin: Administrator = await this.administrator.findOne(id);
         admin.passwordHash = passwordHashString;
-        
         return this.administrator.save(admin);
     }
 }

@@ -4,6 +4,7 @@ import { Administrator } from "entities/administrator.entity";
 import { AddAdministratorDto } from "src/dtos/administrator/add.administrator.dto";
 import { EditAdministratorDto } from "src/dtos/administrator/edit.administrator.dto";
 import { promises } from "dns";
+import { ApiResponse } from "src/misc/api.response.class";
 
 @Controller('api/administrator')
 export class AdministratorController {
@@ -16,17 +17,17 @@ export class AdministratorController {
     }
 
     @Get(':id')
-    getOne(@Param('id') administratorId: number): Promise<Administrator> {
+    getOne(@Param('id') administratorId: number): Promise<Administrator | ApiResponse> {
         return this.administrator.getOne(administratorId);
     }
 
     @Put()
-    add( @Body() data: AddAdministratorDto): Promise<Administrator> {
+    add( @Body() data: AddAdministratorDto): Promise<Administrator | ApiResponse> {
         return this.administrator.add(data);
     }
 
     @Post(':id')
-    editById(@Param('id') id:number,@Body() data: EditAdministratorDto): Promise<Administrator> {
+    editById(@Param('id') id:number,@Body() data: EditAdministratorDto): Promise<Administrator | ApiResponse> {
         return this.administrator.editById(id,data);
     }
 }
