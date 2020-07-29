@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './controllers/app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseConfiguration } from 'config/database.configuration';
 import { Administrator } from 'entities/administrator.entity';
@@ -19,7 +18,8 @@ import { CategoryService } from './service/category/category.service';
 import { CategoryController } from './controllers/api/category.controller';
 import { ArticleService } from './service/article/article.service';
 import { ArticleController } from './controllers/api/article.controller';
-
+import { UserController } from './controllers/api/user.controller';
+import { UserService } from './service/user/user.service';
 
 @Module({
   imports: [
@@ -47,18 +47,21 @@ import { ArticleController } from './controllers/api/article.controller';
     TypeOrmModule.forFeature([
       Administrator,
       Category,
-      Article
+      Article,
+      User
     ])
   ],
   controllers: [
     AdministratorController,
     CategoryController,
     ArticleController,
+    UserController,
   ],
   providers: [
     AdministratorService,
     CategoryService,
     ArticleService,
+    UserService,
   ],
 })
 export class AppModule {}
