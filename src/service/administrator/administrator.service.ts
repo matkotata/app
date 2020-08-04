@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Administrator } from '../../../entities/administrator.entity';
+import { Administrator } from '../../entities/administrator.entity';
 import { Repository, Admin } from 'typeorm';
 import { AddAdministratorDto } from 'src/dtos/administrator/add.administrator.dto';
 import * as crypto from "crypto";
@@ -21,6 +21,13 @@ export class AdministratorService {
         return this.administrator.find();
     }
 
+    async getByUsername(username: string): Promise<Administrator | null> {
+        let admin = await this.administrator.findOne({
+            username: username
+        });
+        return admin;
+    }
+
     getOne(id: number): Promise<Administrator | ApiResponse> {
         return new Promise(async (resolve) => {
             let admin = await this.administrator.findOne(id);
@@ -38,7 +45,7 @@ export class AdministratorService {
 
         let admin = new Administrator();
         admin.username = data.username;
-        admin.passwordHash = passwordHashString
+        admin.passwordHash = passwordHashString;
 
         return new Promise((resolve) => {
             this.administrator.save(admin)
