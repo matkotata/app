@@ -38,7 +38,7 @@ export class AuthController {
         let jwtData = new JwtDataAdministratorDto();
         jwtData.administratorId = admin.administratorId;
         jwtData.username = admin.username;
-        jwtData.ext = expireTokenTime;
+        jwtData.exp = expireTokenTime;
         jwtData.ip = req.ip.toString();
         jwtData.ua = req.headers['user-agent'];
         
