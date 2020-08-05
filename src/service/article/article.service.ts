@@ -6,6 +6,8 @@ import { Repository } from "typeorm";
 import { AddArticleDto } from "src/dtos/article/add.article.dto";
 import { ArticlePrice } from "src/entities/article-price.entity";
 import { ArticleFeature } from "src/entities/article-feature.entity";
+import { Photo } from "src/entities/photo.entity";
+import { ApiResponse } from "src/misc/api.response.class";
 
 @Injectable()
 export class ArticleService extends TypeOrmCrudService<Article> {
@@ -17,7 +19,10 @@ export class ArticleService extends TypeOrmCrudService<Article> {
         private readonly articlePrice: Repository<ArticlePrice>,
 
         @InjectRepository(ArticleFeature)
-        private readonly articleFeature: Repository<ArticleFeature>
+        private readonly articleFeature: Repository<ArticleFeature>,
+
+        @InjectRepository(Photo)
+        private readonly photo: Repository<Photo>
     ) {
         super(article);
     }
@@ -51,5 +56,16 @@ export class ArticleService extends TypeOrmCrudService<Article> {
                 "category"
             ]
         });
+    }
+    async getPhoto(articleId, photoId): Promise<Photo | null>{
+        let newPhoto = await this.photo.findOne({
+            articleId: articleId,
+            photoId: photoId
+        });
+        if(!newPhoto) {
+            return null;
+        }
+
+        return newPhoto;
     }
 }

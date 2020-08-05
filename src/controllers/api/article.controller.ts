@@ -45,7 +45,7 @@ import * as fs from "fs";
 })
 export class ArticleController {
     constructor( public service: ArticleService ,
-                 public photoService: PhotoService  
+                 public photoService: PhotoService
         ){}
 
     @Post('api/createFull')
@@ -127,5 +127,24 @@ export class ArticleController {
             return new ApiResponse('Error', -4001);
         }
         return savedPhoto;
+    }
+
+    @Post(':articleId/deletePhoto/:photoId')
+    async deletePhoto(@Param('articleId') articleId: number,
+                      @Param('photoId') photoId: number): Promise<ApiResponse> {
+        let photo: Photo = await this.service.getPhoto(articleId,photoId);
+        
+        if(photo===null) {
+            return new ApiResponse('error', -4003);
+        }
+
+        fs.unlinkSync(StorageConfig.photos + photo.imagePath);
+        const deletedPhotos = await this.photoService.deletePhoto(photoId);
+        if(deletedPhotos.affected===0){
+            return new ApiResponse('error',-4003);
+        }
+
+        return new ApiResponse('Deleted',1000);
+        
     }
 }
