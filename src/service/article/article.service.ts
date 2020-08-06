@@ -8,6 +8,7 @@ import { ArticlePrice } from "src/entities/article-price.entity";
 import { ArticleFeature } from "src/entities/article-feature.entity";
 import { Photo } from "src/entities/photo.entity";
 import { ApiResponse } from "src/misc/api.response.class";
+import { EditArticleDto } from "src/dtos/article/edit.article.dto";
 
 @Injectable()
 export class ArticleService extends TypeOrmCrudService<Article> {
@@ -65,7 +66,61 @@ export class ArticleService extends TypeOrmCrudService<Article> {
         if(!newPhoto) {
             return null;
         }
-
         return newPhoto;
+    }
+
+    async edit(id: number, data: EditArticleDto): Promise<Article | ApiResponse> {
+        const newArticle = await this.article.findOne(id, {
+            relations: [ "articlePrices",
+                         "articleFeatures",
+            ]
+        });
+        if(!newArticle) {
+            return new ApiResponse('Enter valid ArticleId',-2002);
+        }
+        newArticle.excerpt = data.excerpt;
+        newArticle.description = data.description;
+        newArticle.isPromoted = data.isPromoted;
+        newArticle.name = data.name;
+        newArticle.status = data.status;
+        await this.article.save(newArticle);
+
+        let newPrice: string = Number(data.price).toFixed(2);
+
+        let lastPrice = newArticle.articlePrices[newArticle.articlePrices.length-1].price;
+        let lastPriceString: string = Number(lastPrice).toFixed(2);
+
+        if(newPrice !== lastPriceString) {
+            let newArticlePrice = new ArticlePrice();
+            newArticlePrice.articleId = id;
+            newArticlePrice.price = data.price;
+
+            const savedArticlePrice: ArticlePrice = await this.articlePrice.save(newArticlePrice);
+            if(!savedArticlePrice) {
+                return new ApiResponse('Can not save price',-2003);
+            }
+        }
+
+        if(data.features!==null) {
+            await this.articleFeature.remove(newArticle.articleFeatures);
+
+            for(let feature of data.features) {
+                let newFeature = new ArticleFeature();
+                newFeature.articleId = id;
+                newFeature.featureId = feature.featureId;
+                newFeature.value = feature.value;
+                
+                await this.articleFeature.save(newFeature);
+            }
+        }
+        return await this.article.findOne(id, {
+            relations: [
+                "category",
+                "articleFeatures",
+                "features",
+                "articlePrices"
+            ]
+        })
+        
     }
 }

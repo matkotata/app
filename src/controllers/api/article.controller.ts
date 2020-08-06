@@ -13,6 +13,7 @@ import { Photo } from "src/entities/photo.entity";
 import { ApiResponse } from "src/misc/api.response.class";
 import * as fileType from "file-type";
 import * as fs from "fs";
+import { EditArticleDto } from 'src/dtos/article/edit.article.dto'
 
 @Controller('api/article')
 @Crud({
@@ -41,6 +42,9 @@ import * as fs from "fs";
                 eager: true
             },
         }
+    },
+    routes: {
+        exclude: ['deleteOneBase', 'replaceOneBase', 'updateOneBase']
     }
 })
 export class ArticleController {
@@ -143,8 +147,11 @@ export class ArticleController {
         if(deletedPhotos.affected===0){
             return new ApiResponse('error',-4003);
         }
+        return new ApiResponse('Deleted',1000); 
+    }
 
-        return new ApiResponse('Deleted',1000);
-        
+    @Post(':id/edit')
+    editFullArticle(@Param('id') id: number,@Body() data: EditArticleDto) {
+        return this.service.edit(id, data);
     }
 }

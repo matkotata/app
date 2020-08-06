@@ -39,7 +39,7 @@ export class Article {
     enum: ["avaliable", "visiable", "hidden"],
     default: () => "'avaliable'",
   })
-  status: "avaliable" | "visiable" | "hidden";
+  status: "avaliable" | "visible" | "hidden";
 
   @Column("tinyint", {
     name: "is_promoted",

@@ -80,14 +80,15 @@ import { FeatureController } from './controllers/api/feature.controller';
     FeatureService
   ],
   exports: [
-    AdministratorService
+    AdministratorService,
+    UserService
   ]
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
     .apply(AuthMiddleware)
-    .exclude('/login/admin')
+    .exclude('/login/admin', '/login/user')
     .forRoutes('/api/*')
   }
 }

@@ -3,9 +3,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/entities/user.entity";
 import { Repository } from "typeorm";
 import { ApiResponse } from "src/misc/api.response.class";
-import { UserDto } from "src/dtos/user/add.user.dto";
+import { RegisterUserDto } from "src/dtos/user/register.user.dto";
 import * as crypto from "crypto";
-import { EditPasswordUserDto } from "src/dtos/user/editPassword.user.dto";
+import { EditPasswordUserDto } from "src/dtos/user/edit.password.user.dto";
 import { resolve } from "path";
 
 @Injectable()
@@ -40,7 +40,7 @@ export class UserService {
         });
     }
 
-    add(data: UserDto): Promise<User | ApiResponse> {
+    add(data: RegisterUserDto): Promise<User | ApiResponse> {
         let passwordHash = crypto.createHash('sha512');
         passwordHash.update(data.password);
         const passwordHashString = passwordHash.digest('hex').toUpperCase();
@@ -84,6 +84,16 @@ export class UserService {
                 resolve(new ApiResponse("error", -1001));
             })
         })
+    }
+
+    async getByEmail(email: string): Promise<User | null> {
+        const newUser: User = await this.user.findOne({
+            email:email
+        });
+        if(!newUser) {
+            return null;
+        }
+        return newUser;
     }
 
 }

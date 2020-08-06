@@ -1,14 +1,16 @@
 import { NestMiddleware, HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { Request, NextFunction } from "express";
 import { Response } from "express";
-import { JwtDataAdministratorDto } from "src/dtos/administrator/jwt.data.administrator.dto";
+import { JwtDataLoginDto } from "src/dtos/auth/jwt.data.administrator.dto";
 import * as jwt from "jsonwebtoken";
 import { JwtSecret } from "config/jwt.secret";
 import { AdministratorService } from "src/service/administrator/administrator.service";
+import { UserService } from "src/service/user/user.service";
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-    constructor(private readonly administratorService: AdministratorService){}
+    constructor(private readonly administratorService: AdministratorService,
+                private readonly userService: UserService){}
 
     async use(req: Request, res: Response, next: NextFunction) {
 
@@ -22,7 +24,7 @@ export class AuthMiddleware implements NestMiddleware {
             throw new HttpException('Bad token found',HttpStatus.UNAUTHORIZED);
         }
 
-        let jwtData: JwtDataAdministratorDto;
+        let jwtData: JwtDataLoginDto;
         try {
             jwtData = jwt.verify(tokenParts[1], JwtSecret);
         } catch(e) {
@@ -45,11 +47,19 @@ export class AuthMiddleware implements NestMiddleware {
             throw new HttpException("Token expired", HttpStatus.UNAUTHORIZED);
         }
 
-        const admin = await this.administratorService.getOne(jwtData.administratorId);
-        if(!admin) {
-            throw new HttpException("Unexisting admin", HttpStatus.UNAUTHORIZED);
-        }
+        if(jwtData.role === "administrator") {
+            const admin = await this.administratorService.getOne(jwtData.id);
 
+            if(!admin) {
+                throw new HttpException("Unexisting admin", HttpStatus.UNAUTHORIZED);
+            }
+        } else if(jwtData.role === "user") {
+            const user = await this.userService.getById(jwtData.id);
+
+            if(!user) {
+                throw new HttpException('Token not found', HttpStatus.UNAUTHORIZED);
+            }
+        }
         next();
     }
 
